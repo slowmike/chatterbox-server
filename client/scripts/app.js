@@ -47,7 +47,7 @@ var app = {
       success: function (data) {
         // Clear messages input
         app.$message.val('');
-        console.log('data', data);
+        // console.log('data', data);
         // Trigger a fetch to update the messages, pass true to animate
         app.fetch();
       },
@@ -61,17 +61,17 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      // data: { order: '-createdAt' },
+      data: { order: '-createdAt' },
       success: function(data) {
         // Don't bother if we have nothing to work with
-        // console.log(data);
+        // console.log(data.results);
         if (!data.results || !data.results.length) { return; }
 
         // Store messages for caching later
         app.messages = data.results;
 
         // Get the last message
-        var mostRecentMessage = data.results[data.results.length - 1];
+        var mostRecentMessage = data.results[0];
 
         // Only bother updating the DOM if we have a new message
         if (mostRecentMessage.objectId !== app.lastMessageId) {
@@ -97,6 +97,7 @@ var app = {
 
   renderMessages: function(messages, animate) {
     // Clear existing messages`
+    // console.log('test');
     app.clearMessages();
     app.stopSpinner();
     if (Array.isArray(messages)) {

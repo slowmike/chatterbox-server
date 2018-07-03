@@ -24,7 +24,7 @@ this file and include it in basic-server.js so that it actually works.
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
+  'access-control-allow-headers': 'content-type, accept, data',
   'access-control-max-age': 84200 // Seconds.
 };
 
@@ -64,13 +64,24 @@ var requestHandler = function(request, response) {
   // which includes the status and all headers.
 
   
-  if (request.method === 'GET' && request.url === '/classes/messages') {
+  if (request.method === 'GET' && request.url.includes('/classes/messages')) {
+    if(request.url.includes('order=-createdAt')) {
+      storage.results.sort(function (a,b) {
+        return b.createdAt-a.createdAt;
+      });
+    } else {
+      storage.results.sort(function (a,b) {
+        return a.createdAt-b.createdAt;
+      });
+    }
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
   } else if (request.method === 'POST') {
     var data;
     request.on('data', function (chunk) {
       data = JSON.parse(chunk);
+      data.createdAt = new Date();
+      data.objectId = data.createdAt;
     });
 
     request.on('end', function () {
@@ -80,7 +91,7 @@ var requestHandler = function(request, response) {
     });
   } else if (request.method === 'OPTIONS') {
     response.writeHead(statusCode, headers);
-    response.end('ok');
+    response.end(JSON.stringify(storage));
   } else {
     response.writeHead(404, headers);
     response.end();
