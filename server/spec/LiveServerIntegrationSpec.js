@@ -33,6 +33,60 @@ describe('server', function() {
     });
   });
 
+  //Additional Test 1
+  it('should not accept empty messages', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        text: ''}
+    };
+
+    request(requestParams, function(error, response, body) {
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages.length).to.equal(0);
+        done();
+      });
+    });
+  });
+
+  //Additional Test 2
+  it('objects within `results` array should have objectId property', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        text: 'Do my bidding!'}
+    };
+    request(requestParams, function(error, response, body) {
+      
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[0].objectId).to.exist;
+        done();
+      });
+    });
+  });
+
+  //Additional Test 3
+  it('objects within `results` array should have createdAt property', function(done) {
+    var requestParams = {method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/messages',
+      json: {
+        username: 'Jono',
+        text: 'Do my bidding!'}
+    };
+    request(requestParams, function(error, response, body) {
+      
+      request('http://127.0.0.1:3000/classes/messages', function(error, response, body) {
+        var messages = JSON.parse(body).results;
+        expect(messages[0].createdAt).to.exist;
+        done();
+      });
+    });
+  });
+
   it('should accept POST requests to /classes/messages', function(done) {
     var requestParams = {method: 'POST',
       uri: 'http://127.0.0.1:3000/classes/messages',

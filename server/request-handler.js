@@ -24,7 +24,7 @@ this file and include it in basic-server.js so that it actually works.
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept, data',
+  'access-control-allow-headers': 'content-type, accept',
   'access-control-max-age': 84200 // Seconds.
 };
 
@@ -76,6 +76,7 @@ var requestHandler = function(request, response) {
     }
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
+
   } else if (request.method === 'POST') {
     var data;
     request.on('data', function (chunk) {
@@ -85,10 +86,15 @@ var requestHandler = function(request, response) {
     });
 
     request.on('end', function () {
-      response.writeHead(201, headers);
-      storage.results.push(data);
+      if (data.text.length === 0) {
+        response.writeHead(406, headers);
+      } else {
+        response.writeHead(201, headers);
+        storage.results.push(data);
+      }
       response.end(JSON.stringify(storage));
     });
+
   } else if (request.method === 'OPTIONS') {
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
