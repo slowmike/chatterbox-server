@@ -25,10 +25,10 @@ var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
+  'access-control-max-age': 84200 // Seconds.
 };
 
-var data = {results: []};
+var storage = {results: []};
 
 
 var requestHandler = function(request, response) {
@@ -64,27 +64,23 @@ var requestHandler = function(request, response) {
   // which includes the status and all headers.
 
   
-  if (request.url === '/classes/messages') {
-    if (request.method === 'GET') {
-      response.writeHead(statusCode, headers);
-      // console.log(JSON.stringify(data));
-      response.end(JSON.stringify(data));
-      // response.end('{"results": []}');
-    } else if (request.method === 'POST') {
-      request.on('data', function (chunk) {
-        // console.log(JSON.parse(chunk));
-        data.results.push(JSON.parse(chunk));
-      });
+  if (request.method === 'GET' && request.url === '/classes/messages') {
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(storage));
+  } else if (request.method === 'POST') {
+    var data;
+    request.on('data', function (chunk) {
+      data = JSON.parse(chunk);
+    });
 
-      request.on('end', function () {
-        console.log(data);
-      });
+    request.on('end', function () {
       response.writeHead(201, headers);
-      response.end('ok');
-    } else if (request.method === 'OPTIONS') {
-      response.writeHead(statusCode, headers);
-      response.end('ok');
-    }
+      storage.results.push(data);
+      response.end(JSON.stringify(storage));
+    });
+  } else if (request.method === 'OPTIONS') {
+    response.writeHead(statusCode, headers);
+    response.end('ok');
   } else {
     response.writeHead(404, headers);
     response.end();

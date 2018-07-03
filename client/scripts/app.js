@@ -27,7 +27,7 @@ var app = {
 
     // Fetch previous messages
     // app.startSpinner();
-    app.fetch(true);
+    app.fetch(false);
 
     // Poll for new messages
     setInterval(function() {
@@ -47,7 +47,7 @@ var app = {
       success: function (data) {
         // Clear messages input
         app.$message.val('');
-
+        console.log('data', data);
         // Trigger a fetch to update the messages, pass true to animate
         app.fetch();
       },
@@ -64,7 +64,7 @@ var app = {
       // data: { order: '-createdAt' },
       success: function(data) {
         // Don't bother if we have nothing to work with
-        console.log(data);
+        // console.log(data);
         if (!data.results || !data.results.length) { return; }
 
         // Store messages for caching later
